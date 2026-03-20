@@ -10,14 +10,16 @@ __pycache__/
 *.pyd
 *.so
 
-# 📦 Virtual environment
+# 📦 Virtual environments
 venv/
 env/
 ENV/
+.venv/
 
-# 🧪 Testing
+# 🧪 Testing & coverage
 .pytest_cache/
 .coverage
+htmlcov/
 
 # 🗄️ Database
 *.sqlite3
@@ -31,26 +33,37 @@ logs/
 .DS_Store
 Thumbs.db
 
-# 🧠 ML Models (if large)
+# 🧠 ML Models (large files)
 *.pt
 *.pth
 *.model
+*.bin
 
-# 📄 Uploaded files (important for your project)
+# 📄 Uploaded / user files (IMPORTANT)
 uploads/
 media/
 *.pdf
+*.docx
 
 # 🐳 Docker
 *.pid
+docker-compose.override.yml
 
-# IDE
+# IDE / Editors
 .vscode/
 .idea/
+*.swp
 
-# Build
+# Build files
 dist/
 build/
 
 # Cache
 .cache/
+*.cache
+
+# 🔥 FastAPI specific
+*.json
+
+# 🔐 Secrets (extra safety)
+secrets/
