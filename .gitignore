@@ -1,0 +1,56 @@
+# 🔐 Environment variables
+.env
+.env.*
+*.env
+
+# 🐍 Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# 📦 Virtual environment
+venv/
+env/
+ENV/
+
+# 🧪 Testing
+.pytest_cache/
+.coverage
+
+# 🗄️ Database
+*.sqlite3
+*.db
+
+# 📂 Logs
+logs/
+*.log
+
+# 📁 OS files
+.DS_Store
+Thumbs.db
+
+# 🧠 ML Models (if large)
+*.pt
+*.pth
+*.model
+
+# 📄 Uploaded files (important for your project)
+uploads/
+media/
+*.pdf
+
+# 🐳 Docker
+*.pid
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+dist/
+build/
+
+# Cache
+.cache/
