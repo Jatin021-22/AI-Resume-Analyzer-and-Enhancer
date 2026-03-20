@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ResumeAI — Analyzer & Enhancer</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root{
+  --bg:#e8f4fd;--surface:rgba(255,255,255,0.6);--surface2:rgba(255,255,255,0.4);
+  --border:rgba(255,255,255,0.75);--border2:rgba(144,202,249,0.4);
+  --blue:#2196f3;--blue2:#42a5f5;--blue3:#90caf9;
+  --text:#0d1b2a;--text2:#2c4a6e;--muted:#7da5c8;
+  --green:#00c896;--red:#ff4d6d;--amber:#ffb830;--purple:#7c6aff;
+  --shadow:rgba(33,150,243,0.12);--shadow2:rgba(33,150,243,0.22);
+  --radius:20px;--radius-sm:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Geist',-apple-system,sans-serif;
+  background:linear-gradient(145deg,#daeefb 0%,#eaf5fd 30%,#f0f9ff 55%,#e3f2fd 80%,#cce8f8 100%);
+  min-height:100vh;color:var(--text);overflow-x:hidden;
+}
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);opacity:0}
+.orb-1{width:700px;height:700px;background:radial-gradient(circle,rgba(33,150,243,.18) 0%,transparent 70%);top:-200px;left:-200px}
+.orb-2{width:500px;height:500px;background:radial-gradient(circle,rgba(100,181,246,.15) 0%,transparent 70%);bottom:-100px;right:-100px}
+.orb-3{width:350px;height:350px;background:radial-gradient(circle,rgba(144,202,249,.2) 0%,transparent 70%);top:40%;left:60%}
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.particle{position:absolute;border-radius:50%;background:rgba(33,150,243,.15);animation:floatP linear infinite}
+@keyframes floatP{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:1}90%{opacity:.6}100%{transform:translateY(-120px) scale(1);opacity:0}}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 28px 100px}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:28px 0 0;opacity:0}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),#64b5f6);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 16px rgba(33,150,243,.35)}
+.logo-text{font-weight:600;font-size:18px;letter-spacing:-.4px}
+.logo-text span{color:var(--blue)}
+.nav-pill{background:var(--surface);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:99px;padding:7px 18px;font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;box-shadow:0 2px 12px var(--shadow)}
+
+/* HERO */
+.hero{text-align:center;padding:72px 0 60px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--surface);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:99px;padding:7px 18px;font-family:'Geist Mono',monospace;font-size:11px;color:var(--blue);letter-spacing:.08em;margin-bottom:28px;box-shadow:0 2px 16px var(--shadow);opacity:0}
+.hero-eyebrow::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green);animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.7}}
+.hero h1{font-family:'Instrument Serif',serif;font-size:clamp(42px,7vw,78px);font-weight:400;line-height:1.05;letter-spacing:-1.5px;margin-bottom:22px;opacity:0}
+.hero h1 em{font-style:italic;background:linear-gradient(135deg,var(--blue) 0%,#42a5f5 50%,#90caf9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:17px;color:var(--text2);max-width:480px;margin:0 auto;line-height:1.65;font-weight:300;opacity:0}
+
+/* GLASS */
+.glass{background:var(--surface);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 24px var(--shadow),0 1px 0 rgba(255,255,255,.9) inset;transition:box-shadow .35s,transform .35s}
+.glass:hover{box-shadow:0 8px 40px var(--shadow2),0 1px 0 rgba(255,255,255,.9) inset}
+
+/* TABS */
+.tabs-wrap{display:flex;justify-content:center;margin-bottom:28px;opacity:0}
+.tabs{display:inline-flex;background:rgba(255,255,255,.4);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:99px;padding:5px;box-shadow:0 2px 20px var(--shadow);gap:2px}
+.tab{font-size:13px;font-weight:500;padding:9px 24px;border-radius:99px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1)}
+.tab.active{background:#fff;color:var(--blue);box-shadow:0 2px 12px rgba(33,150,243,.2)}
+
+/* FORM */
+.form-card{opacity:0;margin-bottom:20px}
+.form-top{height:3px;background:linear-gradient(90deg,var(--blue),#64b5f6,#b3e5fc);border-radius:20px 20px 0 0;margin:-1px -1px 0}
+.form-inner{padding:36px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:700px){.form-grid{grid-template-columns:1fr}nav{flex-direction:column;gap:14px}}
+.field{display:flex;flex-direction:column;gap:10px}
+.field-label{font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed var(--border2);border-radius:var(--radius-sm);padding:44px 24px;text-align:center;cursor:pointer;background:rgba(255,255,255,.4);position:relative;transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--blue);background:rgba(33,150,243,.05);transform:scale(1.01);box-shadow:0 0 0 4px rgba(33,150,243,.08)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon-wrap{width:52px;height:52px;background:linear-gradient(135deg,rgba(33,150,243,.12),rgba(100,181,246,.08));border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px;border:1px solid rgba(33,150,243,.15);transition:transform .3s}
+.upload-zone:hover .upload-icon-wrap{transform:translateY(-3px) scale(1.05)}
+.upload-zone h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px}
+.upload-zone p{font-size:12px;color:var(--muted)}
+.filename{font-family:'Geist Mono',monospace;font-size:12px;color:var(--green);margin-top:12px;display:none}
+textarea{font-family:'Geist Mono',monospace;font-size:12.5px;background:rgba(255,255,255,.5);border:1.5px solid rgba(144,202,249,.4);border-radius:var(--radius-sm);color:var(--text);padding:16px;resize:vertical;min-height:180px;width:100%;line-height:1.65;outline:none;transition:border-color .2s,box-shadow .2s,background .2s}
+textarea:focus{border-color:var(--blue2);background:rgba(255,255,255,.7);box-shadow:0 0 0 4px rgba(33,150,243,.08)}
+#pasteSection{display:none}
+
+/* SUBMIT */
+.submit-row{margin-top:28px;display:flex;align-items:center;gap:16px}
+.btn-analyze{font-family:'Geist',sans-serif;font-weight:600;font-size:14px;padding:13px 32px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--blue),#42a5f5);color:#fff;cursor:pointer;letter-spacing:-.2px;box-shadow:0 4px 20px rgba(33,150,243,.4),0 1px 0 rgba(255,255,255,.2) inset;transition:all .25s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:8px;position:relative;overflow:hidden}
+.btn-analyze::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);border-radius:inherit}
+.btn-analyze:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 8px 32px rgba(33,150,243,.5)}
+.btn-analyze:active{transform:translateY(0) scale(.98)}
+.btn-analyze:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.status-txt{font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.03em}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite;display:none;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{margin-top:18px;background:rgba(255,77,109,.07);border:1px solid rgba(255,77,109,.2);border-radius:var(--radius-sm);padding:14px 18px;font-family:'Geist Mono',monospace;font-size:12px;color:var(--red);display:none}
+
+/* RESULTS */
+#results{display:none}
+.results-title{font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;letter-spacing:-.5px;margin-bottom:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.result-badge{font-size:11px;font-weight:500;padding:5px 13px;border-radius:99px}
+.section-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* SCORE GRID */
+.score-grid{display:grid;grid-template-columns:240px 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.score-grid{grid-template-columns:1fr}}
+.score-card{padding:32px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.ring-wrap{position:relative;width:130px;height:130px}
+.ring-wrap svg{transform:rotate(-90deg);overflow:visible}
+.ring-track{fill:none;stroke:rgba(144,202,249,.2);stroke-width:9}
+.ring-fill{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 8px currentColor)}
+.ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.ring-num .num{font-family:'Instrument Serif',serif;font-size:40px;line-height:1}
+.ring-num .denom{font-family:'Geist Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em}
+.conf-pill{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:5px 14px;border-radius:99px;border:1px solid}
+.conf-high{background:rgba(0,200,150,.08);color:var(--green);border-color:rgba(0,200,150,.25)}
+.conf-med{background:rgba(255,184,48,.08);color:var(--amber);border-color:rgba(255,184,48,.25)}
+.conf-low{background:rgba(255,77,109,.08);color:var(--red);border-color:rgba(255,77,109,.25)}
+.insight-card{padding:32px;display:flex;flex-direction:column;justify-content:center;gap:14px}
+.insight-body{font-size:16px;line-height:1.65;color:var(--text2);font-weight:300}
+.profile-chip{font-size:11px;font-weight:500;padding:5px 13px;border-radius:99px;width:fit-content;border:1px solid}
+.chip-fresh{background:rgba(33,150,243,.07);color:var(--blue);border-color:rgba(33,150,243,.2)}
+.chip-exp{background:rgba(0,200,150,.07);color:var(--green);border-color:rgba(0,200,150,.2)}
+
+/* ATS CARD */
+.ats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.ats-grid{grid-template-columns:1fr}}
+.ats-card{padding:22px;display:flex;flex-direction:column;gap:10px}
+.ats-score-big{font-family:'Instrument Serif',serif;font-size:42px;font-weight:400;line-height:1}
+.ats-bar-wrap{height:6px;background:rgba(144,202,249,.2);border-radius:99px;overflow:hidden;margin-top:4px}
+.ats-bar{height:100%;border-radius:99px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.ats-detail{display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted)}
+
+/* ROLE CARD */
+.role-card{padding:24px;margin-bottom:16px}
+.role-scores{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.role-row{display:flex;align-items:center;gap:12px}
+.role-name{font-family:'Geist Mono',monospace;font-size:11px;width:180px;flex-shrink:0;color:var(--text2)}
+.role-bar-wrap{flex:1;height:6px;background:rgba(144,202,249,.2);border-radius:99px;overflow:hidden}
+.role-bar{height:100%;background:linear-gradient(90deg,var(--blue),#64b5f6);border-radius:99px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.role-pct{font-family:'Geist Mono',monospace;font-size:10px;color:var(--muted);width:36px;text-align:right}
+
+/* SKILLS */
+.skill-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:600px){.skill-row{grid-template-columns:1fr}}
+.skill-card{padding:24px}
+.skill-head{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green);box-shadow:0 0 6px var(--green)}
+.dot-red{background:var(--red);box-shadow:0 0 6px var(--red)}
+.dot-blue{background:var(--blue);box-shadow:0 0 6px var(--blue)}
+.dot-sky{background:var(--blue3);box-shadow:0 0 6px var(--blue3)}
+.dot-purple{background:var(--purple);box-shadow:0 0 6px var(--purple)}
+.pills{display:flex;flex-wrap:wrap;gap:7px}
+.pill{font-family:'Geist Mono',monospace;font-size:11px;padding:4px 11px;border-radius:8px;border:1px solid;transition:transform .2s cubic-bezier(.34,1.56,.64,1);cursor:default}
+.pill:hover{transform:scale(1.06) translateY(-1px)}
+.pill-matched{background:rgba(0,200,150,.07);color:#00a87a;border-color:rgba(0,200,150,.2)}
+.pill-missing{background:rgba(255,77,109,.06);color:#e03358;border-color:rgba(255,77,109,.18)}
+.pill-resume{background:rgba(33,150,243,.07);color:#1976d2;border-color:rgba(33,150,243,.2)}
+.pill-job{background:rgba(100,181,246,.08);color:#1565c0;border-color:rgba(100,181,246,.22)}
+.pill-cluster{background:rgba(124,106,255,.07);color:var(--purple);border-color:rgba(124,106,255,.2)}
+.empty-pills{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--muted);font-style:italic}
+
+/* CLUSTERS */
+.clusters-card{padding:24px;margin-bottom:16px}
+.cluster-group{margin-bottom:16px}
+.cluster-group:last-child{margin-bottom:0}
+.cluster-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.cluster-label::after{content:'';flex:1;height:1px;background:rgba(144,202,249,.3)}
+
+/* SECTIONS */
+.sections-card{padding:24px;margin-bottom:16px}
+.sections-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.section-pill{font-family:'Geist Mono',monospace;font-size:11px;padding:5px 13px;border-radius:8px;border:1px solid;display:flex;align-items:center;gap:6px}
+.section-yes{background:rgba(0,200,150,.07);color:#00a87a;border-color:rgba(0,200,150,.2)}
+.section-no{background:rgba(255,77,109,.05);color:var(--muted);border-color:rgba(144,202,249,.2)}
+
+/* EXP TABLE */
+.exp-card{padding:24px;margin-bottom:16px;display:none}
+.exp-table{width:100%;border-collapse:collapse}
+.exp-table th{font-family:'Geist Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);text-align:left;padding:0 0 12px;border-bottom:1px solid rgba(144,202,249,.3)}
+.exp-table td{font-family:'Geist Mono',monospace;font-size:12.5px;padding:10px 0;border-bottom:1px solid rgba(144,202,249,.1)}
+.exp-table td:first-child{color:var(--blue)}
+.exp-table td:last-child{color:var(--green)}
+
+/* CONTACT */
+.contact-card{padding:24px;margin-bottom:16px}
+.contact-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.contact-item{font-family:'Geist Mono',monospace;font-size:11px;padding:5px 13px;border-radius:8px;background:rgba(33,150,243,.06);color:var(--text2);border:1px solid rgba(33,150,243,.15);display:flex;align-items:center;gap:6px}
+
+/* SUGGESTIONS */
+.suggest-card{padding:28px;margin-bottom:16px;display:none}
+.suggest-item{display:flex;align-items:flex-start;gap:14px;padding:13px 0;border-bottom:1px solid rgba(144,202,249,.15)}
+.suggest-item:first-child{padding-top:0}
+.suggest-item:last-child{border-bottom:none;padding-bottom:0}
+.s-num{width:24px;height:24px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--blue),#64b5f6);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(33,150,243,.3);margin-top:1px}
+.s-text{font-size:13.5px;line-height:1.55;color:var(--text2);font-weight:300}
+</style>
+</head>
+<body>
+<div class="orb orb-1" id="orb1"></div>
+<div class="orb orb-2" id="orb2"></div>
+<div class="orb orb-3" id="orb3"></div>
+<div id="particles"></div>
+
+<div class="wrap">
+  <nav id="nav">
+    <div class="nav-logo">
+      <div class="logo-mark">✦</div>
+      <div class="logo-text">Resume<span>AI</span></div>
+    </div>
+    <div class="nav-pill">Semantic · Clustering · ATS · v2.0</div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-eyebrow" id="eyebrow">AI-Powered · NLP Clustering · Role Detection</div>
+    <h1 id="heroTitle">Analyze Your<br><em>Resume Intelligence</em></h1>
+    <p class="hero-sub" id="heroSub">Upload a PDF or paste your resume, describe the role, and get semantic match scoring, ATS compatibility, role detection, and skill clustering.</p>
+  </div>
+
+  <div class="tabs-wrap" id="tabsWrap">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('pdf')">📄 Upload PDF</button>
+      <button class="tab" onclick="switchTab('text')">📝 Paste Text</button>
+    </div>
+  </div>
+
+  <div class="glass form-card" id="formCard">
+    <div class="form-top"></div>
+    <div class="form-inner">
+      <div class="form-grid">
+        <div class="field">
+          <div class="field-label">Resume Input</div>
+          <div id="pdfSection">
+            <div class="upload-zone" id="dropZone"
+              ondragover="onDrag(event)" ondragleave="offDrag()" ondrop="onDrop(event)">
+              <input type="file" id="pdfFile" accept=".pdf" onchange="onFile(this)">
+              <div class="upload-icon-wrap">📂</div>
+              <h4>Drop your PDF here</h4>
+              <p>or click to browse · PDF only · Max 5MB</p>
+              <div class="filename" id="fileName"></div>
+            </div>
+          </div>
+          <div id="pasteSection">
+            <textarea id="resumeText" placeholder="Paste your resume here…&#10;&#10;Name, skills, experience, education…"></textarea>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label">Job Description</div>
+          <textarea id="jobDescription" placeholder="Paste the job description here…&#10;&#10;We are looking for a Python developer with FastAPI, Docker, PostgreSQL, AWS…"></textarea>
+        </div>
+      </div>
+      <div class="submit-row">
+        <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">
+          <span id="btnText">Analyze Resume</span>
+          <span class="spinner" id="spinner"></span>
+          <span id="btnArrow">→</span>
+        </button>
+        <div class="status-txt" id="statusText"></div>
+      </div>
+      <div class="error-box" id="errorBox"></div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ── -->
+  <div id="results">
+    <div class="results-title" id="resultsTitle">
+      Analysis Results
+      <span class="result-badge" id="resultTag"></span>
+    </div>
+
+    <!-- Score + Insight -->
+    <div class="score-grid">
+      <div class="glass score-card result-item">
+        <div class="ring-wrap">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle class="ring-track" cx="65" cy="65" r="55"/>
+            <circle class="ring-fill" id="scoreArc" cx="65" cy="65" r="55"
+              stroke-dasharray="345.4" stroke-dashoffset="345.4"/>
+          </svg>
+          <div class="ring-num">
+            <span class="num" id="scoreNum">0</span>
+            <span class="denom">/ 100</span>
+          </div>
+        </div>
+        <span class="conf-pill" id="confidencePill">—</span>
+      </div>
+      <div class="glass insight-card result-item">
+        <div class="section-label">AI Insight</div>
+        <div class="insight-body" id="insightText">—</div>
+        <span class="profile-chip" id="fresherChip"></span>
+      </div>
+    </div>
+
+    <!-- ATS Score row -->
+    <div class="ats-grid" id="atsGrid">
+      <div class="glass ats-card result-item" id="atsMain">
+        <div class="section-label">ATS Score</div>
+        <div class="ats-score-big" id="atsNum">—</div>
+        <div class="ats-bar-wrap"><div class="ats-bar" id="atsBar" style="width:0%"></div></div>
+        <div class="section-label" id="atsLevel">—</div>
+      </div>
+      <div class="glass ats-card result-item" id="atsDetail">
+        <div class="section-label" style="margin-bottom:12px">ATS Breakdown</div>
+        <div class="ats-detail"><span>Keyword Match</span><span id="atsKw">—</span></div>
+        <div style="height:4px;background:rgba(144,202,249,.15);border-radius:99px;margin:6px 0;overflow:hidden"><div id="atsKwBar" style="height:100%;border-radius:99px;background:var(--blue);transition:width 1.2s"></div></div>
+        <div class="ats-detail" style="margin-top:8px"><span>Sections Found</span><span id="atsSec">—</span></div>
+        <div style="height:4px;background:rgba(144,202,249,.15);border-radius:99px;margin:6px 0;overflow:hidden"><div id="atsSecBar" style="height:100%;border-radius:99px;background:var(--green);transition:width 1.2s"></div></div>
+        <div class="ats-detail" style="margin-top:8px"><span>Word Count</span><span id="atsWc">—</span></div>
+      </div>
+      <div class="glass ats-card result-item" id="atsRole">
+        <div class="section-label">Detected Role</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:22px;margin:8px 0;color:var(--text)" id="roleText">—</div>
+        <div style="font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted)" id="roleConf">—</div>
+        <div style="margin-top:10px;font-family:'Geist Mono',monospace;font-size:10px;color:var(--blue)" id="roleSecondary"></div>
+      </div>
+    </div>
+
+    <!-- Role confidence bars -->
+    <div class="glass role-card result-item" id="roleCard" style="margin-bottom:16px">
+      <div class="section-label">Role Fit Analysis</div>
+      <div class="role-scores" id="roleScores"></div>
+    </div>
+
+    <!-- Sections detected -->
+    <div class="glass sections-card result-item" id="sectionsCard" style="margin-bottom:16px">
+      <div class="section-label">Resume Sections Detected</div>
+      <div class="sections-grid" id="sectionsGrid"></div>
+    </div>
+
+    <!-- Contact info -->
+    <div class="glass contact-card result-item" id="contactCard" style="margin-bottom:16px">
+      <div class="section-label">Contact Information Extracted</div>
+      <div class="contact-grid" id="contactGrid"></div>
+    </div>
+
+    <!-- Matched / Missing -->
+    <div class="skill-row">
+      <div class="glass skill-card result-item">
+        <div class="skill-head"><span class="dot dot-green"></span>Matched Skills</div>
+        <div class="pills" id="matchedPills"></div>
+      </div>
+      <div class="glass skill-card result-item">
+        <div class="skill-head"><span class="dot dot-red"></span>Missing Skills</div>
+        <div class="pills" id="missingPills"></div>
+      </div>
+    </div>
+
+    <!-- Resume / Job skills -->
+    <div class="skill-row">
+      <div class="glass skill-card result-item">
+        <div class="skill-head"><span class="dot dot-blue"></span>Resume Skills Detected</div>
+        <div class="pills" id="resumePills"></div>
+      </div>
+      <div class="glass skill-card result-item">
+        <div class="skill-head"><span class="dot dot-sky"></span>Job Required Skills</div>
+        <div class="pills" id="jobPills"></div>
+      </div>
+    </div>
+
+    <!-- Skill Clusters -->
+    <div class="glass clusters-card result-item" id="clustersCard" style="margin-bottom:16px">
+      <div class="skill-head" style="margin-bottom:14px"><span class="dot dot-purple"></span>Skill Clusters (AI Grouped)</div>
+      <div id="clustersList"></div>
+    </div>
+
+    <!-- Experience -->
+    <div class="glass exp-card result-item" id="expCard">
+      <div class="skill-head">📊 Experience Detected</div>
+      <table class="exp-table">
+        <thead><tr><th>Skill</th><th>Duration</th></tr></thead>
+        <tbody id="expBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="glass suggest-card result-item" id="suggestCard">
+      <div class="section-label" style="margin-bottom:18px">💡 Recommendations</div>
+      <div id="suggestionsList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* Parallax orbs */
+document.addEventListener('mousemove', e => {
+  const mx = (e.clientX/window.innerWidth-.5)*30;
+  const my = (e.clientY/window.innerHeight-.5)*20;
+  gsap.to('#orb1',{x:mx*1.2,y:my*.8,duration:2,ease:'power2.out'});
+  gsap.to('#orb2',{x:-mx*.8,y:-my*1.1,duration:2.5,ease:'power2.out'});
+  gsap.to('#orb3',{x:mx*.5,y:my*1.3,duration:1.8,ease:'power2.out'});
+});
+
+/* Particles */
+(function(){
+  const c=document.getElementById('particles');
+  for(let i=0;i<18;i++){
+    const p=document.createElement('div');p.className='particle';
+    const s=Math.random()*6+3;
+    p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${Math.random()*18+12}s;animation-delay:${Math.random()*15}s;opacity:${Math.random()*.3+.05}`;
+    c.appendChild(p);
+  }
+})();
+
+/* 3D card tilt */
+document.querySelectorAll('.glass').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5;
+    const y=(e.clientY-r.top)/r.height-.5;
+    gsap.to(card,{rotateX:-y*4,rotateY:x*4,transformPerspective:900,duration:.4,ease:'power2.out'});
+  });
+  card.addEventListener('mouseleave',()=>{
+    gsap.to(card,{rotateX:0,rotateY:0,duration:.5,ease:'elastic.out(1,.6)'});
+  });
+});
+
+/* Page load sequence */
+const tl=gsap.timeline({defaults:{ease:'power3.out'}});
+tl.to('.orb-1,.orb-2,.orb-3',{opacity:1,duration:1.5,stagger:.2})
+  .to('#nav',{opacity:1,duration:.7},'<.3')
+  .fromTo('#nav',{y:-20},{y:0},'<')
+  .to('#eyebrow',{opacity:1,duration:.6},'-=.4')
+  .fromTo('#eyebrow',{y:16},{y:0},'<')
+  .to('#heroTitle',{opacity:1,duration:.7},'-=.3')
+  .fromTo('#heroTitle',{y:24},{y:0},'<')
+  .to('#heroSub',{opacity:1,duration:.6},'-=.4')
+  .fromTo('#heroSub',{y:16},{y:0},'<')
+  .to('#tabsWrap',{opacity:1,duration:.55},'-=.3')
+  .to('#formCard',{opacity:1,duration:.6},'-=.25')
+  .fromTo('#formCard',{y:22},{y:0},'<');
+
+/* TAB SWITCH */
+let activeTab='pdf';
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='pdf')||(i===1&&tab==='text')));
+  const pdfEl=document.getElementById('pdfSection');
+  const pasteEl=document.getElementById('pasteSection');
+  if(tab==='pdf'){
+    gsap.to(pasteEl,{opacity:0,y:8,duration:.2,onComplete:()=>{pasteEl.style.display='none';pdfEl.style.display='block';gsap.fromTo(pdfEl,{opacity:0,y:8},{opacity:1,y:0,duration:.3});}});
+  }else{
+    gsap.to(pdfEl,{opacity:0,y:8,duration:.2,onComplete:()=>{pdfEl.style.display='none';pasteEl.style.display='block';gsap.fromTo(pasteEl,{opacity:0,y:8},{opacity:1,y:0,duration:.3});}});
+  }
+}
+
+/* DRAG */
+function onDrag(e){e.preventDefault();document.getElementById('dropZone').classList.add('drag')}
+function offDrag(){document.getElementById('dropZone').classList.remove('drag')}
+function onDrop(e){
+  e.preventDefault();offDrag();
+  const f=e.dataTransfer.files[0];
+  if(f&&f.name.endsWith('.pdf')){const dt=new DataTransfer();dt.items.add(f);document.getElementById('pdfFile').files=dt.files;showFileName(f.name);}
+}
+function onFile(i){if(i.files[0])showFileName(i.files[0].name)}
+function showFileName(n){const el=document.getElementById('fileName');el.textContent='✓ '+n;el.style.display='block'}
+
+function setLoading(on){
+  document.getElementById('analyzeBtn').disabled=on;
+  document.getElementById('btnText').style.display=on?'none':'inline';
+  document.getElementById('btnArrow').style.display=on?'none':'inline';
+  document.getElementById('spinner').style.display=on?'inline-block':'none';
+  document.getElementById('statusText').textContent=on?'Running NLP analysis…':'';
+}
+function showError(msg){
+  const el=document.getElementById('errorBox');el.textContent='⚠ '+msg;el.style.display='block';
+  gsap.fromTo(el,{x:-8},{x:0,duration:.4,ease:'elastic.out(1,.5)'});
+}
+function hideError(){document.getElementById('errorBox').style.display='none'}
+
+/* ANALYSIS */
+async function runAnalysis(){
+  hideError();document.getElementById('results').style.display='none';
+  const job=document.getElementById('jobDescription').value.trim();
+  if(!job){showError('Please enter a job description.');return}
+  let body,url;
+  if(activeTab==='pdf'){
+    const file=document.getElementById('pdfFile').files[0];
+    if(!file){showError('Please upload a PDF resume.');return}
+    body=new FormData();body.append('file',file);body.append('job_description',job);
+    url='/api/resume/analyze';
+  }else{
+    const text=document.getElementById('resumeText').value.trim();
+    if(!text){showError('Please paste your resume text.');return}
+    body=new FormData();body.append('resume_text',text);body.append('job_description',job);
+    url='/api/resume/analyze-text';
+  }
+  setLoading(true);
+  try{
+    const res=await fetch(url,{method:'POST',body});
+    const data=await res.json();
+    if(!res.ok){showError(data.detail||'Something went wrong.');return}
+    renderResults(data);
+  }catch(e){showError('Network error — is the server running?')}
+  finally{setLoading(false)}
+}
+
+/* PILLS */
+function makePills(container,items,cls){
+  container.innerHTML='';
+  if(!items||!items.length){container.innerHTML='<span class="empty-pills">None detected</span>';return}
+  items.forEach((s,i)=>{
+    const p=document.createElement('span');p.className=`pill ${cls}`;p.textContent=s;
+    container.appendChild(p);
+    gsap.fromTo(p,{opacity:0,scale:.8,y:6},{opacity:1,scale:1,y:0,duration:.35,delay:i*.055,ease:'back.out(1.7)'});
+  });
+}
+
+/* RENDER */
+function renderResults(d){
+  const score=d.match_score||0;
+  const conf=(d.confidence||'low').toLowerCase();
+
+  /* Score ring */
+  const circ=345.4;
+  const arc=document.getElementById('scoreArc');
+  const color=score>=75?'#00c896':score>=50?'#ffb830':'#ff4d6d';
+  arc.style.stroke=color;arc.style.strokeDashoffset=circ;
+  setTimeout(()=>{arc.style.strokeDashoffset=circ-(score/100)*circ},100);
+
+  /* Counter */
+  const numEl=document.getElementById('scoreNum');numEl.style.color=color;
+  gsap.fromTo({val:0},{val:score},{duration:1.5,ease:'power2.out',
+    onUpdate:function(){numEl.textContent=Math.round(this.targets()[0].val)}});
+
+  /* Confidence */
+  const cp=document.getElementById('confidencePill');
+  cp.textContent=(d.confidence||'Low')+' Confidence';
+  cp.className='conf-pill '+(conf==='high'?'conf-high':conf==='medium'?'conf-med':'conf-low');
+
+  /* Tag */
+  const tag=document.getElementById('resultTag');
+  tag.textContent=d.fresher?'👨‍💻 Fresher':'💼 Experienced';
+  tag.style.cssText=d.fresher
+    ?'background:rgba(33,150,243,.09);color:#1976d2;border:1px solid rgba(33,150,243,.2)'
+    :'background:rgba(0,200,150,.09);color:#00a87a;border:1px solid rgba(0,200,150,.2)';
+
+  document.getElementById('insightText').textContent=d.insight||'—';
+  const fc=document.getElementById('fresherChip');
+  fc.textContent=d.fresher?'Fresher — no experience found':'Experienced candidate';
+  fc.className='profile-chip '+(d.fresher?'chip-fresh':'chip-exp');
+
+  /* ATS */
+  const ats=d.ats||{};
+  const atsScore=ats.ats_score||0;
+  const atsColor=atsScore>=70?'#00c896':atsScore>=45?'#ffb830':'#ff4d6d';
+  document.getElementById('atsNum').textContent=atsScore;
+  document.getElementById('atsNum').style.color=atsColor;
+  document.getElementById('atsLevel').textContent=ats.ats_level||'—';
+  setTimeout(()=>{document.getElementById('atsBar').style.cssText=`width:${atsScore}%;background:${atsColor}`;},200);
+  document.getElementById('atsKw').textContent=ats.keyword_score||0;
+  document.getElementById('atsSec').textContent=ats.section_score||0;
+  document.getElementById('atsWc').textContent=(ats.word_count||0)+' words';
+  setTimeout(()=>{
+    document.getElementById('atsKwBar').style.width=Math.min((ats.keyword_score||0)/40*100,100)+'%';
+    document.getElementById('atsSecBar').style.width=Math.min((ats.section_score||0)/30*100,100)+'%';
+  },300);
+
+  /* Role detection */
+  const role=d.role_detection||{};
+  document.getElementById('roleText').textContent=role.primary_role||'Unknown';
+  document.getElementById('roleConf').textContent='Confidence: '+(role.confidence||0)+'%';
+  document.getElementById('roleSecondary').textContent=
+    role.secondary_role?'Also fits: '+role.secondary_role:'';
+
+  /* Role bars */
+  const rsEl=document.getElementById('roleScores');rsEl.innerHTML='';
+  if(role.all_scores){
+    Object.entries(role.all_scores).sort((a,b)=>b[1]-a[1]).forEach(([r,s],i)=>{
+      rsEl.innerHTML+=`
+        <div class="role-row">
+          <div class="role-name">${r}</div>
+          <div class="role-bar-wrap"><div class="role-bar" id="rb${i}" style="width:0%"></div></div>
+          <div class="role-pct">${s}%</div>
+        </div>`;
+      setTimeout(()=>{const el=document.getElementById('rb'+i);if(el)el.style.width=s+'%'},400+i*60);
+    });
+  }
+
+  /* Sections */
+  const sg=document.getElementById('sectionsGrid');sg.innerHTML='';
+  if(d.sections_detected){
+    Object.entries(d.sections_detected).forEach(([sec,found])=>{
+      sg.innerHTML+=`<span class="section-pill ${found?'section-yes':'section-no'}">${found?'✓':'✗'} ${sec}</span>`;
+    });
+  }
+
+  /* Contact */
+  const cg=document.getElementById('contactGrid');cg.innerHTML='';
+  const contact=d.contact_info||{};
+  const cIcons={name:'👤',email:'📧',phone:'📞',linkedin:'💼',github:'⬛'};
+  Object.entries(contact).forEach(([k,v])=>{
+    if(v)cg.innerHTML+=`<span class="contact-item">${cIcons[k]||'•'} ${v}</span>`;
+  });
+  if(!cg.innerHTML)cg.innerHTML='<span class="empty-pills">No contact info detected</span>';
+
+  /* Skills */
+  makePills(document.getElementById('matchedPills'),d.matched_skills,'pill-matched');
+  makePills(document.getElementById('missingPills'),d.missing_skills,'pill-missing');
+  makePills(document.getElementById('resumePills'),d.resume_skills,'pill-resume');
+  makePills(document.getElementById('jobPills'),d.job_skills,'pill-job');
+
+  /* Clusters */
+  const cl=document.getElementById('clustersList');cl.innerHTML='';
+  if(d.skill_clusters&&Object.keys(d.skill_clusters).length){
+    Object.entries(d.skill_clusters).forEach(([rep,skills])=>{
+      const pillsHtml=skills.map(s=>`<span class="pill pill-cluster">${s}</span>`).join('');
+      cl.innerHTML+=`<div class="cluster-group"><div class="cluster-label">${rep}</div><div class="pills">${pillsHtml}</div></div>`;
+    });
+  }else{cl.innerHTML='<span class="empty-pills">Not enough skills to cluster</span>'}
+
+  /* Experience */
+  const expCard=document.getElementById('expCard');
+  const expBody=document.getElementById('expBody');expBody.innerHTML='';
+  if(d.experience&&Object.keys(d.experience).length){
+    Object.entries(d.experience).forEach(([sk,val])=>{expBody.innerHTML+=`<tr><td>${sk}</td><td>${val}</td></tr>`;});
+    expCard.style.display='block';
+  }else expCard.style.display='none';
+
+  /* Suggestions */
+  const sc=document.getElementById('suggestCard');
+  const sl=document.getElementById('suggestionsList');sl.innerHTML='';
+  if(d.suggestions&&d.suggestions.length){
+    d.suggestions.forEach((s,i)=>{
+      sl.innerHTML+=`<div class="suggest-item"><span class="s-num">${i+1}</span><span class="s-text">${s}</span></div>`;
+    });
+    sc.style.display='block';
+  }else sc.style.display='none';
+
+  /* Reveal */
+  const resultsEl=document.getElementById('results');
+  resultsEl.style.display='block';
+  gsap.fromTo('#resultsTitle',{opacity:0,y:20},{opacity:1,y:0,duration:.6,ease:'power3.out'});
+  gsap.fromTo('.result-item',{opacity:0,y:30,scale:.97},
+    {opacity:1,y:0,scale:1,duration:.55,stagger:.08,ease:'power3.out',delay:.1});
+  setTimeout(()=>resultsEl.scrollIntoView({behavior:'smooth',block:'start'}),300);
+  ScrollTrigger.refresh();
+}
+</script>
+</body>
+</html>
