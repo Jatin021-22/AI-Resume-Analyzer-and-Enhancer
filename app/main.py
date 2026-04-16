@@ -12,19 +12,28 @@ import os
 
 from config import settings
 from routes import resume, auth
+from routes.feedback import router as feedback_router
+from routes.admin import router as admin_router
 
-# ── Logging ──────────────────────────────────────────────────
-logger.remove()
-logger.add(sys.stdout, format="{time:HH:mm:ss} | {level} | {message}", level="INFO")
-logger.add("logs/app.log", rotation="10 MB", retention="7 days", level="DEBUG",
-           format="{time} | {level} | {name}:{line} | {message}")
 
+# ── Create logs folder FIRST ───────────────────────────────
 os.makedirs("logs", exist_ok=True)
 
-# ── Rate limiter ──────────────────────────────────────────────
+# ── Logging ───────────────────────────────────────────────
+logger.remove()
+logger.add(sys.stdout, format="{time:HH:mm:ss} | {level} | {message}", level="INFO")
+logger.add(
+    "logs/app.log",
+    rotation="10 MB",
+    retention="7 days",
+    level="DEBUG",
+    format="{time} | {level} | {name}:{line} | {message}"
+)
+
+# ── Rate limiter ──────────────────────────────────────────
 limiter = Limiter(key_func=get_remote_address, default_limits=["30/minute"])
 
-# ── App ───────────────────────────────────────────────────────
+# ── App (CREATE FIRST) ────────────────────────────────────
 app = FastAPI(
     title=settings.APP_NAME,
     description="AI-powered resume analyzer with semantic matching, clustering & ATS scoring",
@@ -33,9 +42,11 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# ── Attach limiter ────────────────────────────────────────
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# ── Middleware ────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
@@ -44,13 +55,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Static & Templates ────────────────────────────────────
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+# ── Routers (AFTER app creation) ──────────────────────────
 app.include_router(resume.router, prefix="/api")
-app.include_router(auth.router,   prefix="/api")
+app.include_router(auth.router, prefix="/api")
+app.include_router(feedback_router)
+app.include_router(admin_router)
 
-
+# ── Routes ────────────────────────────────────────────────
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def home(request: Request):
     return templates.TemplateResponse("dashboard.html", {"request": request})
@@ -58,9 +73,19 @@ async def home(request: Request):
 
 @app.get("/health", tags=["Health"])
 async def health():
-    return {"status": "ok", "version": "2.0.0", "app": settings.APP_NAME}
+    return {
+        "status": "ok",
+        "version": "2.0.0",
+        "app": settings.APP_NAME
+    }
 
 
+@app.get("/admin", include_in_schema=False)
+def admin_panel(request: Request):
+    return templates.TemplateResponse("admin.html", {"request": request})
+
+
+# ── Exception Handlers ────────────────────────────────────
 @app.exception_handler(404)
 async def not_found(request: Request, exc):
     return JSONResponse(status_code=404, content={"detail": "Route not found"})
